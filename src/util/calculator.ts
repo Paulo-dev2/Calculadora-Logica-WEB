@@ -33,7 +33,7 @@ const calculate = (expression: string): { truthTable: object[], tableHeader: str
 
     const premises = extractPremises(expression);
     const resultTokenize = tokenize(cleanedExpression)
-    const tree = buildTree(resultTokenize);
+    buildTree(resultTokenize);
     const tableHeader = [...premises, cleanedExpression];
     const truthTable = generateTruthTable(cleanedExpression);
     return {

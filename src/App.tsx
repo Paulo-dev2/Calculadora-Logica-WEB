@@ -6,7 +6,7 @@ import calculator from './util/calculator';
 import { Table } from './components/Tabela';
 
 function App() {
-  const [result, setResult] = useState<Boolean>(false);
+  const [, setResult] = useState<Boolean>(false);
   const [error, setError] = useState<string>("");
   const [expressao, setExpressao] = useState("");
   const [tableHeader, setTableHeader] = useState<string[]>([]); // Definindo o tipo de estado explicitamente
