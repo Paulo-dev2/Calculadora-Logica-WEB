@@ -41,33 +41,37 @@ export const buildTree = (tokens: string[]): TreeNode => {
     const values: TreeNode[] = [];
     const operators: string[] = [];
 
+    const processOperator = (operator: string) => {
+        while (
+            operators.length > 0 &&
+            precedence(operator) <= precedence(operators[operators.length - 1])
+        ) {
+            createNode(operators, values);
+        }
+        operators.push(operator);
+    };
+
     for (let i = 0; i < tokens.length; i++) {
-        if (isPremises(tokens[i])) {
-            values.push(new TreeNode(tokens[i]));
-        } else if (tokens[i] === '(') {
-            operators.push(tokens[i]);
-        } else if (tokens[i] === ')') {
-            while (operators.length > 0 && operators[operators.length - 1] !== '(') {
-                createNode(operators, values);
-            }
-            operators.pop(); // Remove o '('
-        } else if (isOperator(tokens[i] + tokens[i + 1])) {
-            while (
-                operators.length > 0 &&
-                precedence(tokens[i] + tokens[i + 1]) <= precedence(operators[operators.length - 1])
-            ) {
-                createNode(operators, values);
-            }
-            operators.push(tokens[i] + tokens[i + 1]);
-            i++; // Pula o próximo token porque já foi processado
-        } else if (isOperator(tokens[i])) {
-            while (
-                operators.length > 0 &&
-                precedence(tokens[i]) <= precedence(operators[operators.length - 1])
-            ) {
-                createNode(operators, values);
-            }
-            operators.push(tokens[i]);
+        switch (true) {
+            case isPremises(tokens[i]):
+                values.push(new TreeNode(tokens[i]));
+                break;
+            case tokens[i] === '(':
+                operators.push(tokens[i]);
+                break;
+            case tokens[i] === ')':
+                while (operators.length > 0 && operators[operators.length - 1] !== '(') {
+                    createNode(operators, values);
+                }
+                operators.pop(); // Remove o '('
+                break;
+            case isOperator(tokens[i] + tokens[i + 1]):
+                processOperator(tokens[i] + tokens[i + 1]);
+                i++; // Pula o próximo token porque já foi processado
+                break;
+            case isOperator(tokens[i]):
+                processOperator(tokens[i]);
+                break;
         }
     }
 
@@ -77,14 +81,13 @@ export const buildTree = (tokens: string[]): TreeNode => {
     return values.pop()!;
 };
 
-
-const generateCombinations = (variables: string[]): Set<object> => {
+const generateCombinations = (premissas: string[]): Set<object> => {
     const combinations: any = new Set();
-    const numberOfCombinations = Math.pow(2, variables.length);
+    const numberOfCombinations = Math.pow(2, premissas.length);
     for (let i = 0; i < numberOfCombinations; i++) {
         const combination: { [key: string]: boolean } = {};
-        for (let j = 0; j < variables.length; j++) {
-            combination[variables[j]] = !!(i & (1 << j));
+        for (let j = 0; j < premissas.length; j++) {
+            combination[premissas[j]] = !!(i & (1 << j));
         }
         combinations.add(combination);
     }
@@ -116,10 +119,29 @@ const evaluateOperation = (node: TreeNode | null, values: { [key: string]: boole
     }
 };
 
+
+const traverse = (node: any, level = 1, result: any = []) => {
+    if (node === null) {
+        return;
+    }
+
+    if (node.left !== null && node.right !== null) {
+        if (result[level] === undefined) {
+            result[level] = [];
+        }
+        result[level].push(`${node.left.value} ${node.value} ${node.right.value}`);
+    }
+
+    traverse(node.left, level + 1, result);
+    traverse(node.right, level + 1, result);
+    return result;
+}
+
 export const generateTruthTable = (expression: string): object[] => {
-    const variables = Array.from(new Set(expression.replace(/[^P-S]/g, "")));
-    const combinations: any = generateCombinations(variables);
+    const premissas = Array.from(new Set(expression.replace(/[^P-S]/g, "")));
+    const combinations: any = generateCombinations(premissas);
     const tree = buildTree(expression.split(''));
+    console.log(traverse(tree))
     const truthTable = [];
     for (let combination of combinations) {
         console.log(tree)

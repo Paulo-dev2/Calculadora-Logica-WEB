@@ -1,10 +1,10 @@
-import { buildTree, generateTruthTable, isOperator, isPremises, operators } from "./tree";
+import { generateTruthTable, isOperator, isPremises, operators } from "./tree";
 
 const cleanExpression = (expression: string): string => expression.replace(/\s/g, "");
 
 const extractPremises = (expression: string): string[] => Array.from(new Set(expression.match(/[P-S]/g) || []));
 
-const tokenize = (expression: string): string[] => expression.replace(/->|<>/g, ' $& ').split(/\s+/);
+//const tokenize = (expression: string): string[] => expression.replace(/->|<>/g, ' $& ').split(/\s+/);
 
 const isValidSequence = (expression: string): boolean => {
     const lastChar = expression[expression.length - 1];
@@ -13,7 +13,7 @@ const isValidSequence = (expression: string): boolean => {
     }
     for (let i = 0; i < expression.length - 1; i++) {
         if (isPremises(expression[i]) && isPremises(expression[i + 1])) return false;
-        if (isOperator(expression[i]) && isOperator(expression[i + 1])) return false;
+        if (isOperator(expression[i]) && isOperator(expression[i + 1]) && !(expression[i + 1] == "~")) return false;
         if (isOperator(expression[i]) && expression[i + 1] === ")") return false;
         if (isOperator(expression[i]) && i === 0 && expression[i] !== "~") return false;
     }
@@ -32,8 +32,6 @@ const calculate = (expression: string): { truthTable: object[], tableHeader: str
     if (!isValidSequence(cleanedExpression)) return false;
 
     const premises = extractPremises(expression);
-    const resultTokenize = tokenize(cleanedExpression)
-    buildTree(resultTokenize);
     const tableHeader = [...premises, cleanedExpression];
     const truthTable = generateTruthTable(cleanedExpression);
     return {

@@ -1,14 +1,14 @@
 import { useState } from 'react';
-import { Calculator, Container, Value } from './style';
+import { Calculator, Container, ContainerResult, ContainerTitle, Title, Result } from './style';
 import { Row } from './components/Row';
 import { Button } from './components/Button';
 import calculator from './util/calculator';
 import { Table } from './components/Tabela';
 
 function App() {
-  const [, setResult] = useState<Boolean>(false);
+  const [result, setResult] = useState<Boolean>(false);
   const [error, setError] = useState<string>("");
-  const [expressao, setExpressao] = useState("");
+  const [expressao, setExpressao] = useState<string>("");
   const [tableHeader, setTableHeader] = useState<string[]>([]); // Definindo o tipo de estado explicitamente
   const [truthTable, setTruthTable] = useState<object[]>([]); // Definindo o tipo de estado explicitamente
 
@@ -32,14 +32,18 @@ function App() {
     setTruthTable(result.truthTable);
   }
 
+  console.log(error)
+
   return (
     <>
     <Container>
       <Calculator>
-        <Value>
-          {error ? <p>{error}</p> : expressao}
-        </Value>
-
+        <ContainerTitle>
+          <Title>Tabela Verdade Online</Title>
+        </ContainerTitle>
+        <ContainerResult>
+          <Result placeholder='Exemplo: ~(P^QVR)' value={error ? error : expressao} disabled/>
+        </ContainerResult>
         <Row>
           <Button
              text="AC"
@@ -79,7 +83,9 @@ function App() {
          </Row>
       </Calculator>
     </Container>
-      <Table tableHeader={tableHeader} truthTable={truthTable} /> {/* Passando os estados diretamente */}
+      {result && (
+        <Table tableHeader={tableHeader} truthTable={truthTable} />
+      )}
     </>
   )
 }
