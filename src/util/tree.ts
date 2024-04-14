@@ -40,6 +40,7 @@ const createNode = (operators: string[], values: TreeNode[]): void => {
 export const buildTree = (tokens: string[]): TreeNode => {
     const values: TreeNode[] = [];
     const operators: string[] = [];
+    const parentese: string[] = [];
 
     const processOperator = (operator: string) => {
         while (
@@ -49,6 +50,7 @@ export const buildTree = (tokens: string[]): TreeNode => {
             createNode(operators, values);
         }
         operators.push(operator);
+        console.log(operators);
     };
 
     for (let i = 0; i < tokens.length; i++) {
@@ -57,13 +59,14 @@ export const buildTree = (tokens: string[]): TreeNode => {
                 values.push(new TreeNode(tokens[i]));
                 break;
             case tokens[i] === '(':
-                operators.push(tokens[i]);
+                parentese.push(tokens[i]);
                 break;
             case tokens[i] === ')':
-                while (operators.length > 0 && operators[operators.length - 1] !== '(') {
+                while (operators.length > 0 && parentese[parentese.length - 1] !== '(') {
                     createNode(operators, values);
                 }
-                operators.pop(); // Remove o '('
+                parentese.pop(); // Remover o parêntese de abertura correspondente
+                operators.pop(); // Remover o operador '(' da pilha de operadores
                 break;
             case isOperator(tokens[i] + tokens[i + 1]):
                 processOperator(tokens[i] + tokens[i + 1]);
@@ -141,10 +144,8 @@ export const generateTruthTable = (expression: string): object[] => {
     const premissas = Array.from(new Set(expression.replace(/[^P-S]/g, "")));
     const combinations: any = generateCombinations(premissas);
     const tree = buildTree(expression.split(''));
-    console.log(traverse(tree))
     const truthTable = [];
     for (let combination of combinations) {
-        console.log(tree)
         const result = evaluateOperation(tree, combination);
         truthTable.push({
             ...combination,
