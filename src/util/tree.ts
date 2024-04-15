@@ -50,7 +50,6 @@ export const buildTree = (tokens: string[]): TreeNode => {
             createNode(operators, values);
         }
         operators.push(operator);
-        console.log(operators);
     };
 
     for (let i = 0; i < tokens.length; i++) {

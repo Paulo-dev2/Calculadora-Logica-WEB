@@ -26,13 +26,11 @@ function App() {
       setError("Invalid Expression");
       return;
     }
-    console.log(result);
     setResult(true);
     setTableHeader(result.tableHeader);
     setTruthTable(result.truthTable);
   }
 
-  console.log(error)
 
   return (
     <>
