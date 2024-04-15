@@ -15,7 +15,15 @@ function App() {
   const handleTap = (type: string, value: String = "" ) => {
     setError("");
     if(type == "clear") setExpressao("");
-    if(type == "del") setExpressao(prevState => prevState.slice(0, -1));
+    if(type === "del") {
+      // Verifica se o último operador é <> ou ->
+      const lastOperator = expressao.slice(-2);
+      if (lastOperator === "<>" || lastOperator === "->") {
+        setExpressao(prevState => prevState.slice(0, -2));
+      } else {
+        setExpressao(prevState => prevState.slice(0, -1));
+      }
+    }
     setExpressao(prevState => prevState + value);
   };
 
