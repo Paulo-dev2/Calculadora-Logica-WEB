@@ -177,7 +177,7 @@ export const generateTruthTable = (expression: string): any => {
     const premissas = Array.from(new Set(expression.replace(/[^P-S]/g, "")));
     const combinations: any = generateCombinations(premissas);
     const header = createHeader(expression);
-    const tree = buildTree(expression.split(''));
+    buildTree(expression.split(''));
     const truthTable = [];
 
     for (let combination of combinations) {
