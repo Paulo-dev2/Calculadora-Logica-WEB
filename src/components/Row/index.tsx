@@ -6,7 +6,7 @@ interface RowProps {
 
 export const Row = ({ children }: RowProps) => {
     return (
-        <div style={{ display: "flex", flexDirection: "row" }}>
+        <div style={{ display: "flex", flexDirection: "row", marginTop: "5%"}}>
             {children}
         </div>
     );
