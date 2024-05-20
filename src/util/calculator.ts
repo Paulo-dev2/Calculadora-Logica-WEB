@@ -32,8 +32,8 @@ const calculate = (expression: string): { truthTable: object[], tableHeader: str
     if (!isValidSequence(cleanedExpression)) return false;
 
     const premises = extractPremises(expression);
-    const tableHeader = [...premises, cleanedExpression];
-    const truthTable = generateTruthTable(cleanedExpression);
+    const [truthTable, header] = generateTruthTable(cleanedExpression);
+    let tableHeader = [...premises, ...header];
     return {
         truthTable,
         tableHeader

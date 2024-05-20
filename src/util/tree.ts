@@ -16,14 +16,14 @@ export const isOperator = (token: string): boolean => operators.has(token);
 
 export const premises = new Set(["P", "Q", "R", "S"]);
 
-export const isPremises = (token: string): boolean => premises.has(token)
+export const isPremises = (token: string): boolean => premises.has(token);
 
 const precedenceMap = new Map([
     ["~", 3], // Negation
     ["^", 2], // Conjunction (AND)
     ["V", 1], // Disjunction (OR)
-    ["→", 0], // Conditional
-    ["↔", 0] // Biconditional
+    ["->", 0], // Conditional
+    ["<>", 0] // Biconditional
 ]);
 
 const precedence = (op: string): number => precedenceMap.get(op) || 0;
@@ -121,35 +121,72 @@ const evaluateOperation = (node: TreeNode | null, values: { [key: string]: boole
     }
 };
 
+const createHeader = (expression: string): string[] => {
+    const tokens = expression.split('');
+    const subexpressions: string[] = [];
+    const stack: string[] = [];
+    let current: string = '';
 
-const traverse = (node: any, level = 1, result: any = []) => {
-    if (node === null) {
-        return;
-    }
-
-    if (node.left !== null && node.right !== null) {
-        if (result[level] === undefined) {
-            result[level] = [];
+    for (let i = 0; i < tokens.length; i++) {
+        switch(tokens[i]) {
+            case '(':
+                if (current.length > 0) {
+                    stack.push(current);
+                    current = '';
+                }
+                stack.push(tokens[i]);
+                break;
+            case ')':
+                if (current.length > 0) {
+                    subexpressions.push(current);
+                    current = '';
+                }
+                let expr: string = '';
+                while (stack.length > 0 && stack[stack.length - 1] !== '(') {
+                    expr = stack.pop() + expr;
+                }
+                stack.pop(); // Remove '('
+                if (expr.length > 0) {
+                    current = expr;
+                    subexpressions.push(current);
+                    current = '';
+                }
+                break;
+            default:
+                if (isOperator(tokens[i] + tokens[i + 1])) {
+                    current += tokens[i] + tokens[i + 1];
+                    i++;
+                } else if (isOperator(tokens[i])) {
+                    current += tokens[i];
+                } else {
+                    current += tokens[i];
+                }
         }
-        result[level].push(`${node.left.value} ${node.value} ${node.right.value}`);
     }
+    if (current.length > 0) {
+        subexpressions.push(current);
+    }
+    if (!subexpressions.includes(expression)) {
+        subexpressions.push(expression);
+    }
+    return subexpressions;
+};
 
-    traverse(node.left, level + 1, result);
-    traverse(node.right, level + 1, result);
-    return result;
-}
 
-export const generateTruthTable = (expression: string): object[] => {
+export const generateTruthTable = (expression: string): any => {
     const premissas = Array.from(new Set(expression.replace(/[^P-S]/g, "")));
     const combinations: any = generateCombinations(premissas);
+    const header = createHeader(expression);
     const tree = buildTree(expression.split(''));
     const truthTable = [];
+
     for (let combination of combinations) {
-        const result = evaluateOperation(tree, combination);
-        truthTable.push({
-            ...combination,
-            Result: result
-        });
+        const row: { [key: string]: boolean } = { ...combination };
+        for (let subExpr of header) {
+            const subTree = buildTree(subExpr.split(''));
+            row[subExpr] = evaluateOperation(subTree, combination);
+        }
+        truthTable.push(row);
     }
-    return truthTable;
+    return [truthTable, header];
 };
